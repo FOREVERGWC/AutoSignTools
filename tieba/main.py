@@ -5,8 +5,10 @@ import time
 import requests
 import yaml
 
+from utils.user_agent_util import get_user_agent
 
-def load_bduss(filename='./config/config.yml'):
+
+def load_bduss(filename='../config/config.yml'):
     """
     从配置文件加载bduss
     :param filename: 配置文件名称
@@ -17,7 +19,7 @@ def load_bduss(filename='./config/config.yml'):
     return config['tieba']['BDUSS']
 
 
-def load_cookies(filename='./config/config.yml'):
+def load_cookies(filename='../config/config.yml'):
     """
     从配置文件加载cookie
     :param filename: 配置文件名称
@@ -37,6 +39,11 @@ def load_cookies(filename='./config/config.yml'):
 
 
 def get_like_tieba_list(bduss):
+    """
+    获取关注贴吧列表
+    :param bduss: BDUSS字符串
+    :return: 关注贴吧列表
+    """
     url = 'http://c.tieba.baidu.com/c/f/forum/like'
     data = {
         'BDUSS': bduss,
@@ -52,17 +59,22 @@ def get_like_tieba_list(bduss):
         'timestamp': str(int(time.time())),
         'vcode_tag': '11',
     }
-    data = encodeData(data)
+    data = encode_data(data)
     cookies = load_cookies()
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0'
+        'User-Agent': get_user_agent()
     }
 
     response = requests.post(url, data=data, cookies=cookies, headers=headers)
     return response.json()['forum_list']['non-gconforum']
 
 
-def encodeData(data):
+def encode_data(data):
+    """
+    数据加密
+    :param data: 数据
+    :return: 结果
+    """
     s = ''
     keys = data.keys()
     for i in sorted(keys):
@@ -73,9 +85,14 @@ def encodeData(data):
 
 
 def get_tbs(kw):
+    """
+    获取贴吧tbs
+    :param kw: 吧名
+    :return: tbs字符串
+    """
     url = f"https://tieba.baidu.com/f?kw={kw}&fr=index&fp=0&ie=utf-8"
     headers = {
-        'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0'
+        'User-Agent': get_user_agent()
     }
     response = requests.get(url, headers=headers)
     response.raise_for_status()
@@ -87,10 +104,14 @@ def get_tbs(kw):
     return None
 
 
-if __name__ == '__main__':
-    bduss = load_bduss()
-    like_tieba_list = get_like_tieba_list(bduss)
-    for ba in like_tieba_list:
+def sign_in(tieba_list=None):
+    """
+    贴吧签到
+    :param tieba_list: 关注贴吧列表
+    """
+    if tieba_list is None:
+        tieba_list = []
+    for ba in tieba_list:
         tbs = get_tbs(ba['name'])
         item = {
             'ie': 'utf-8',
@@ -100,7 +121,7 @@ if __name__ == '__main__':
         url = 'https://tieba.baidu.com/sign/add'
         cookies = load_cookies()
         headers = {
-            'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/130.0.0.0 Safari/537.36 Edg/130.0.0.0'
+            'User-Agent': get_user_agent()
         }
 
         response = requests.post(url, data=item, cookies=cookies, headers=headers)
@@ -109,3 +130,9 @@ if __name__ == '__main__':
             print(f"【{item['kw']}吧】签到成功！{response.json()}")
         else:
             print(f"【{item['kw']}吧】签到失败！{response.json()['error']}")
+
+
+if __name__ == '__main__':
+    bduss = load_bduss()
+    like_tieba_list = get_like_tieba_list(bduss)
+    sign_in(like_tieba_list)
