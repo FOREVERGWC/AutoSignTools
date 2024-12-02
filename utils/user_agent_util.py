@@ -12,7 +12,7 @@ user_agent_list = [
 ]
 
 
-def get_user_agent():
+def get_user_agent() -> str:
     """
     获取User-Agent
     :return: User-Agent字符串

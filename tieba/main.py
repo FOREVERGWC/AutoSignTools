@@ -8,7 +8,7 @@ import yaml
 from utils.user_agent_util import get_user_agent
 
 
-def load_bduss(filename='../config/config.yml'):
+def load_bduss(filename='../config/config.yml') -> str:
     """
     从配置文件加载bduss
     :param filename: 配置文件名称
@@ -19,7 +19,7 @@ def load_bduss(filename='../config/config.yml'):
     return config['tieba']['BDUSS']
 
 
-def load_cookies(filename='../config/config.yml'):
+def load_cookies(filename='../config/config.yml') -> dict:
     """
     从配置文件加载cookie
     :param filename: 配置文件名称
@@ -38,7 +38,7 @@ def load_cookies(filename='../config/config.yml'):
     return cookies
 
 
-def get_like_tieba_list(bduss):
+def get_like_tieba_list(bduss) -> list:
     """
     获取关注贴吧列表
     :param bduss: BDUSS字符串
@@ -69,7 +69,7 @@ def get_like_tieba_list(bduss):
     return response.json()['forum_list']['non-gconforum']
 
 
-def encode_data(data):
+def encode_data(data) -> dict:
     """
     数据加密
     :param data: 数据
@@ -84,7 +84,7 @@ def encode_data(data):
     return data
 
 
-def get_tbs(kw):
+def get_tbs(kw) -> str:
     """
     获取贴吧tbs
     :param kw: 吧名
@@ -104,7 +104,7 @@ def get_tbs(kw):
     return None
 
 
-def sign_in(tieba_list=None):
+def sign_in(tieba_list=None) -> None:
     """
     贴吧签到
     :param tieba_list: 关注贴吧列表
